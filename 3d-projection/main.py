@@ -12,7 +12,7 @@ if __name__ == "__main__":
     assert dataset_root.exists()
 
     dataset = KITTIDataset(dataset_root)
-    data = dataset.get(2)
+    data = dataset.get(1)
 
     left_img = data.left_img
     right_img = data.right_img
@@ -34,17 +34,19 @@ if __name__ == "__main__":
     T_left_to_right = np.eye(4)
 
     # The baseline is the difference in the x-translation component of the projection matrices
-    baseline = (
+    baseline = np.abs(
         data.right_P[0, 3] / data.right_P[0, 0] - data.left_P[0, 3] / data.left_P[0, 0]
     )
     print(f"baseline: {baseline}")
+
+    # x-translation from left to right camera
     T_left_to_right[0, 3] = -baseline
 
-    # We need to use the right camera's projection matrix for the final projection
+    # Project the 3D coordinates to the right image
     img_coords = proj.project(coords_3d, data.left_P, T_left_to_right)
 
-    img_reproj = grid_sample(left_img, img_coords)
-    diff = img_reproj - right_img
+    img_reproj = grid_sample(right_img, img_coords)
+    diff = img_reproj - left_img
 
     fig, axes = plt.subplots(2, 2, figsize=(12, 5))
 
@@ -52,10 +54,10 @@ if __name__ == "__main__":
     axes[0, 0].set_title("Left Image")
     axes[0, 1].imshow(right_img)
     axes[0, 1].set_title("Right Image")
-    axes[1, 0].imshow(left_depth, cmap="gray")
-    axes[1, 0].set_title("Left Depth (Velodyne)")
-    axes[1, 1].imshow(img_reproj)
-    axes[1, 1].set_title("Reprojected Left Image to Right View")
+    axes[1, 0].imshow(img_reproj)
+    axes[1, 0].set_title("Reprojected Right Image to Left View")
+    axes[1, 1].imshow(left_depth, cmap="gray")
+    axes[1, 1].set_title("Left Depth (Velodyne)")
 
     for ax in axes.flatten():
         ax.axis("off")

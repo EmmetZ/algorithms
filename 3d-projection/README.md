@@ -1,6 +1,6 @@
 # KITTI Dataset Images Reprojection
 
-project the left image onto the right image using depth map from velodyne point cloud.
+project the right image onto the left image using depth map from velodyne point cloud.
 
 ![result](./assets/reprojection_result.png)
 

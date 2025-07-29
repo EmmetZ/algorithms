@@ -44,11 +44,11 @@ class BackProjection:
             depth (np.ndarray): Depth map of shape (H, W).
             inv_K (np.ndarray): Inverse camera matrix of shape (3, 3).
         """
-        # shape: (3, H * W)
-        pix_coords_3d = np.matmul(inv_K, self.pix_coords)
-
         # scale by depth
-        pix_coords_3d *= depth.reshape(1, -1)
+        pix_coords = self.pix_coords * depth.reshape(1, -1)
+
+        # shape: (3, H * W)
+        pix_coords_3d = np.matmul(inv_K, pix_coords)
 
         # add a row of ones for homogeneous coordinates
         pix_coords_3d = np.vstack(
